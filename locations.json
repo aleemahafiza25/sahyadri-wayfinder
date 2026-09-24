@@ -1,0 +1,181 @@
+{
+  "scans": [
+    {
+      "id": "entry",
+      "name": "Main entrance",
+      "x": 108,
+      "y": 1095,
+      "node": "entry"
+    }
+  ],
+  "rooms": [
+    {
+      "id": "visitor-lounge",
+      "name": "Visitor lounge",
+      "x": 170,
+      "y": 1167,
+      "node": "entry"
+    },
+    {
+      "id": "admission",
+      "name": "Admission section",
+      "x": 303,
+      "y": 1173,
+      "node": "bottom-left"
+    },
+    {
+      "id": "iqac",
+      "name": "IQAC room",
+      "x": 454,
+      "y": 1170,
+      "node": "bottom-center"
+    },
+    {
+      "id": "exam",
+      "name": "Exam section",
+      "x": 557,
+      "y": 1170,
+      "node": "bottom-center"
+    },
+    {
+      "id": "accounts",
+      "name": "Accounts section",
+      "x": 676,
+      "y": 1170,
+      "node": "bottom-right"
+    },
+    {
+      "id": "conference",
+      "name": "Conference room",
+      "x": 850,
+      "y": 1170,
+      "node": "bottom-right"
+    },
+    {
+      "id": "computer-lab-1",
+      "name": "Computer Lab 1",
+      "x": 866,
+      "y": 966,
+      "node": "lower-right"
+    },
+    {
+      "id": "department-library",
+      "name": "Department library",
+      "x": 858,
+      "y": 821,
+      "node": "middle-right"
+    },
+    {
+      "id": "computer-science",
+      "name": "Computer Science staff room",
+      "x": 699,
+      "y": 825,
+      "node": "middle-right"
+    },
+    {
+      "id": "innovation",
+      "name": "Innovation lab",
+      "x": 495,
+      "y": 909,
+      "node": "lower-center"
+    },
+    {
+      "id": "interior-desk",
+      "name": "Interior desk",
+      "x": 495,
+      "y": 1050,
+      "node": "lower-center"
+    },
+    {
+      "id": "seminar",
+      "name": "Seminar hall",
+      "x": 299,
+      "y": 620,
+      "node": "middle-left"
+    },
+    {
+      "id": "library-reading",
+      "name": "Library reading area",
+      "x": 520,
+      "y": 681,
+      "node": "middle-center"
+    },
+    {
+      "id": "board",
+      "name": "Board room",
+      "x": 116,
+      "y": 732,
+      "node": "middle-left"
+    },
+    {
+      "id": "security",
+      "name": "Security room",
+      "x": 142,
+      "y": 908,
+      "node": "lower-left"
+    },
+    {
+      "id": "principal",
+      "name": "Principal's chamber",
+      "x": 849,
+      "y": 405,
+      "node": "upper-right"
+    },
+    {
+      "id": "academic",
+      "name": "Academic section",
+      "x": 847,
+      "y": 490,
+      "node": "upper-right"
+    },
+    {
+      "id": "foundation",
+      "name": "Foundation office",
+      "x": 829,
+      "y": 253,
+      "node": "top-right"
+    },
+    {
+      "id": "director",
+      "name": "Director's chamber",
+      "x": 700,
+      "y": 250,
+      "node": "top-right"
+    },
+    {
+      "id": "reception-room",
+      "name": "Reception",
+      "x": 486,
+      "y": 466,
+      "node": "upper-center"
+    },
+    {
+      "id": "registration",
+      "name": "Registration section",
+      "x": 487,
+      "y": 391,
+      "node": "upper-center"
+    },
+    {
+      "id": "interview",
+      "name": "Interview room",
+      "x": 237,
+      "y": 255,
+      "node": "top-left"
+    },
+    {
+      "id": "placement",
+      "name": "Department placement office",
+      "x": 112,
+      "y": 455,
+      "node": "upper-left"
+    },
+    {
+      "id": "workshop",
+      "name": "Workshop ground floor",
+      "x": 393,
+      "y": 108,
+      "node": "top-left"
+    }
+  ]
+}
