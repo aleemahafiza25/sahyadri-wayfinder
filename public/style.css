@@ -700,3 +700,77 @@ h1 {
     border: 1px solid #999;
   }
 }
+
+/* ---------- Multi-floor navigation ---------- */
+
+.floor-tabs,
+.route-floors {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 12px;
+}
+
+.floor-tabs button,
+.route-floors button {
+  flex: 1 1 100px;
+  min-height: 44px;
+  padding: 10px;
+
+  color: #073b2c;
+  background: #fff;
+
+  border: 1px solid #bccfc3;
+  border-radius: 8px;
+
+  font: inherit;
+  cursor: pointer;
+}
+
+.floor-tabs button[aria-pressed="true"] {
+  color: #fff;
+  background: #073b2c;
+}
+
+.floor-status {
+  margin: 0;
+  padding: 6px 16px 12px;
+  color: #526a5c;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.result small {
+  display: block;
+  margin-top: 4px;
+  color: #526a5c;
+  font-size: 13px;
+}
+
+.route-notice {
+  padding: 10px;
+  background: #fff6df;
+  border-left: 3px solid #a47418;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.verify-stairs {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.verify-stairs input {
+  width: 22px;
+  min-width: 22px;
+  height: 22px;
+  min-height: 22px;
+  margin: 0;
+}
+
+#markers {
+  pointer-events: none;
+}
