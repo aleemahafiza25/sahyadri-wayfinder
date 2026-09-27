@@ -11,6 +11,19 @@ const MAP_HEIGHT = 1313;
 let data = null;
 let selected = null;
 let activeFloor = 0;
+
+/* Floor where the visitor is physically standing */
+const floorFromUrl = Number(
+  new URLSearchParams(window.location.search).get("floor")
+);
+
+let currentFloor =
+  Number.isInteger(floorFromUrl) &&
+  floorFromUrl >= 0 &&
+  floorFromUrl <= 3
+    ? floorFromUrl
+    : 0;
+
 let admin = false;
 let zoom = 1;
 
@@ -331,8 +344,24 @@ function render() {
   const room = destination();
   const floor = floors[activeFloor];
 
+const roomNumber =
+  room?.name.match(/\d+(?!.*\d)/)?.[0] || "";
+
+if (!room) {
   $("originName").textContent =
-    `${start.name} · Ground floor`;
+    `You are on ${floors[currentFloor].name}`;
+} else if (room.floor === currentFloor) {
+  $("originName").textContent =
+    `Same block · ${floors[currentFloor].name} · ${
+      roomNumber ? `Room ${roomNumber}` : room.name
+    }`;
+} else {
+  $("originName").textContent =
+    `You are on ${floors[currentFloor].name} · ` +
+    `Destination: ${floors[room.floor].name} · ${
+      roomNumber ? `Room ${roomNumber}` : room.name
+    }`;
+}
 
   const term = $("search").value.trim().toLowerCase();
 
@@ -359,12 +388,14 @@ function render() {
     `;
 
   $("results").querySelectorAll("button").forEach((button) => {
-    button.onclick = () => {
-      selected = button.dataset.id;
+button.onclick = () => {
+  selected = button.dataset.id;
 
-      // Always begin the route at the entrance.
-      showFloor(0);
-    };
+  const room = destination();
+
+  // Open the floor where the searched room actually is.
+  showFloor(room.floor);
+};
   });
 
   $("floorTabs").innerHTML = Object.entries(floors)
@@ -400,54 +431,20 @@ function render() {
 
   $("mapCaption").textContent = floor.name;
 
-  const points = routeOnFloor(room, activeFloor);
-
-  const coordinates = points
-    .map((point) => point.join(","))
-    .join(" ");
-
-  $("route").innerHTML = points.length > 1
-    ? `
-      <polyline
-        points="${coordinates}"
-        fill="none"
-        stroke="white"
-        stroke-width="13"
-      />
-
-      <polyline
-        points="${coordinates}"
-        fill="none"
-        stroke="#08755d"
-        stroke-width="7"
-        stroke-linejoin="round"
-        stroke-dasharray="15 10"
-      />
-    `
-    : "";
-
+$("route").innerHTML = "";
   const pins = [];
 
-  if (activeFloor === 0) {
+if (activeFloor === currentFloor) {
+  if (currentFloor === 0) {
     pins.push({
       ...start,
       kind: "start",
       label: "You are here"
     });
   }
+}
 
-  if (room?.floor > 0 && activeFloor <= room.floor) {
-    const [x, y] = floor.nodes.stairs;
 
-    pins.push({
-      x,
-      y,
-      kind: "edit",
-      label: activeFloor < room.floor
-        ? "Staircase A · go up"
-        : "Staircase A · exit here"
-    });
-  }
 
   if (room?.floor === activeFloor) {
     pins.push({
@@ -471,12 +468,37 @@ function render() {
 
   drawPins(pins);
 
-  $("floorStatus").textContent = activeFloor === 0
-    ? "Route starts at the main entrance."
-    : (
-      `Viewing ${floor.name.toLowerCase()}. ` +
-      "Your starting point remains the ground-floor entrance."
-    );
+  if (room?.floor === activeFloor) {
+  const left = room.x / MAP_WIDTH * 100;
+  const top = room.y / MAP_HEIGHT * 100;
+
+  $("markers").insertAdjacentHTML(
+    "beforeend",
+    `
+      <div
+        class="room-arrow"
+        style="left: ${left}%; top: ${top}%;"
+        aria-hidden="true"
+      ></div>
+    `
+  );
+}
+
+if (!room) {
+  $("floorStatus").textContent =
+    `You are currently on ${floors[currentFloor].name}.`;
+} else if (room.floor === currentFloor) {
+  $("floorStatus").textContent =
+    `Same block · ${floors[room.floor].name} · ${
+      roomNumber ? `Room ${roomNumber}` : room.name
+    }`;
+}else {
+  $("floorStatus").textContent =
+    `Destination: ${floors[room.floor].name} · ${
+      roomNumber ? `Room ${roomNumber}` : room.name
+    }. ` +
+    `Go to this floor using the staircase or lift.`;
+}
 
   renderDirections(room);
 }
@@ -485,104 +507,7 @@ function render() {
 // ---------- Directions and route-floor buttons ----------
 
 function renderDirections(room) {
-  if (!room) {
-    $("directions").textContent =
-      "Search for a room on any floor.";
-
-    return;
-  }
-
-  if (!routeOnFloor(room, 0).length) {
-    $("directions").innerHTML = `
-      <h2>${escapeHtml(room.name)}</h2>
-      <p>This route has not been mapped yet.</p>
-    `;
-
-    return;
-  }
-
-  let steps;
-
-  if (room.floor === 0) {
-    steps = [
-      "Start at the main entrance.",
-      "Follow the marked ground-floor corridor route.",
-      `Check the door sign for ${room.name}.`
-    ];
-  } else {
-    const floorName = floors[room.floor].name.toLowerCase();
-    const floorWord = room.floor === 1 ? "floor" : "floors";
-
-    steps = [
-      (
-        "From the main entrance, follow the ground-floor line " +
-        "to Staircase A near the store rooms."
-      ),
-      (
-        `Go up ${room.floor} ${floorWord} using the same ` +
-        `staircase to reach the ${floorName}.`
-      ),
-      (
-        `Open the ${floorName} map below and follow the line ` +
-        `from the staircase to ${room.name}.`
-      ),
-      "Check the room name or number on its door."
-    ];
-  }
-
-  const draft =
-    room.floor > 0 && !data.staircaseVerified;
-
-  const floorButtons = Array.from(
-    { length: room.floor + 1 },
-    (_, floorNumber) => `
-      <button
-        type="button"
-        data-floor="${floorNumber}"
-      >
-        ${floors[floorNumber].name}
-      </button>
-    `
-  ).join("");
-
-  $("directions").innerHTML = `
-    <h2>${escapeHtml(room.name)}</h2>
-
-    <p>${floors[room.floor].name}</p>
-
-    ${draft ? `
-      <p class="route-notice">
-        Draft route: the staircase connection still needs
-        checking at the college.
-      </p>
-    ` : ""}
-
-    <ol>
-      ${steps.map((step) => `
-        <li>${escapeHtml(step)}</li>
-      `).join("")}
-    </ol>
-
-    <div class="route-floors">
-      ${floorButtons}
-    </div>
-
-    <small>
-      Map routes are approximate. Upper-floor routes use stairs.
-    </small>
-  `;
-
-  $("directions")
-    .querySelectorAll("[data-floor]")
-    .forEach((button) => {
-      button.onclick = () => {
-        showFloor(button.dataset.floor);
-
-        document.querySelector(".map-panel").scrollIntoView({
-          behavior: "smooth"
-        });
-      };
-    });
+  $("directions").innerHTML = "";
 }
 
 
@@ -649,23 +574,71 @@ function setAdmin(value) {
 
     fillLocations();
 
-    $("qrList").innerHTML = `
-      <div class="qr-card">
-        <strong>Main entrance</strong>
+$("qrList").innerHTML = `
+  <div class="qr-card">
+    <strong>Ground Floor</strong>
 
-        <img
-          src="/api/qr/entry"
-          alt="Entrance QR code"
-        >
+    <img
+      src="/api/qr/floor-0"
+      alt="Ground Floor QR code"
+    >
 
-        <a
-          href="/api/qr/entry"
-          download="entrance-qr.png"
-        >
-          Download entrance QR
-        </a>
-      </div>
-    `;
+    <a
+      href="/api/qr/floor-0"
+      download="ground-floor-qr.png"
+    >
+      Download QR
+    </a>
+  </div>
+
+  <div class="qr-card">
+    <strong>First Floor</strong>
+
+    <img
+      src="/api/qr/floor-1"
+      alt="First Floor QR code"
+    >
+
+    <a
+      href="/api/qr/floor-1"
+      download="first-floor-qr.png"
+    >
+      Download QR
+    </a>
+  </div>
+
+  <div class="qr-card">
+    <strong>Second Floor</strong>
+
+    <img
+      src="/api/qr/floor-2"
+      alt="Second Floor QR code"
+    >
+
+    <a
+      href="/api/qr/floor-2"
+      download="second-floor-qr.png"
+    >
+      Download QR
+    </a>
+  </div>
+
+  <div class="qr-card">
+    <strong>Third Floor</strong>
+
+    <img
+      src="/api/qr/floor-3"
+      alt="Third Floor QR code"
+    >
+
+    <a
+      href="/api/qr/floor-3"
+      download="third-floor-qr.png"
+    >
+      Download QR
+    </a>
+  </div>
+`;
   } else {
     render();
   }

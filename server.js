@@ -18,6 +18,44 @@ if(u.pathname==='/api/auth')return send(res,200,{admin:auth(req)});
 if(u.pathname==='/api/login'&&req.method==='POST'){const b=await input(req);if(!equal(b.password||'',password))return send(res,401,{error:'Incorrect password'});const e=String(Date.now()+86400000);res.setHeader('Set-Cookie',`admin=${e}.${sign(e)}; HttpOnly; SameSite=Strict; Path=/; Max-Age=86400${process.env.COOKIE_SECURE==='true'?'; Secure':''}`);return send(res,200,{admin:true})}
 if(u.pathname==='/api/logout'&&req.method==='POST'){res.setHeader('Set-Cookie','admin=; HttpOnly; SameSite=Strict; Path=/; Max-Age=0');return send(res,200,{admin:false})}
 if(u.pathname==='/api/save'&&req.method==='POST'){if(!auth(req))return send(res,401,{error:'Sign in first'});const b=await input(req);if(!valid(b.rooms)||!valid(b.scans))return send(res,400,{error:'Invalid locations'});fs.writeFileSync(file+'.tmp',JSON.stringify(b,null,2));fs.renameSync(file+'.tmp',file);return send(res,200,{saved:true})}
-if(u.pathname.startsWith('/api/qr/')){const id=decodeURIComponent(u.pathname.slice(8));if(!read().scans.some(s=>s.id===id))return send(res,404,{error:'Unknown QR point'});const base=process.env.PUBLIC_URL?.replace(/\/$/,'')||`${req.headers['x-forwarded-proto']||'http'}://${req.headers.host}`;const png=await QRCode.toBuffer(`${base}/?from=${encodeURIComponent(id)}`,{width:360,margin:2});res.writeHead(200,{'Content-Type':'image/png'});return res.end(png)}
+if (u.pathname.startsWith('/api/qr/')) {
+  const id = decodeURIComponent(u.pathname.slice(8));
+
+  const base =
+    process.env.PUBLIC_URL?.replace(/\/$/, '') ||
+    `${req.headers['x-forwarded-proto'] || 'http'}://${req.headers.host}`;
+
+  // Floor QR codes
+  const floorMatch = id.match(/^floor-(0|1|2|3)$/);
+
+  let targetUrl;
+
+  if (floorMatch) {
+    const floor = floorMatch[1];
+
+    targetUrl = `${base}/?floor=${floor}`;
+  } else {
+    // Keep existing QR points working
+    if (!read().scans.some((s) => s.id === id)) {
+      return send(res, 404, { error: 'Unknown QR point' });
+    }
+
+    targetUrl = `${base}/?from=${encodeURIComponent(id)}`;
+  }
+
+  const png = await QRCode.toBuffer(
+    targetUrl,
+    {
+      width: 360,
+      margin: 2
+    }
+  );
+
+  res.writeHead(200, {
+    'Content-Type': 'image/png'
+  });
+
+  return res.end(png);
+}
 const target=path.resolve(root,'.'+decodeURIComponent(u.pathname==='/'?'/index.html':u.pathname));if(!target.startsWith(root+path.sep))return send(res,403,{error:'Forbidden'});const mime={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.jpeg':'image/jpeg'};fs.readFile(target,(err,data)=>{if(err)return send(res,404,{error:'Not found'});res.writeHead(200,{'Content-Type':mime[path.extname(target)]||'application/octet-stream'});res.end(data)})
 }catch(e){send(res,400,{error:e.message})}}).listen(port,()=>console.log(`Open http://localhost:${port}`));

@@ -908,3 +908,40 @@ h1 {
       scale(0.99);
   }
 }
+
+
+
+/* ---------- Simple searched-room arrow ---------- */
+
+.room-arrow {
+  position: absolute;
+  z-index: 4;
+
+  width: 6px;
+  height: 38px;
+
+  background: #c53c34;
+  border-radius: 999px;
+
+  transform: translate(-50%, -100%);
+
+  filter:
+    drop-shadow(0 2px 3px rgba(0, 0, 0, 0.35));
+}
+
+.room-arrow::after {
+  content: "";
+
+  position: absolute;
+  left: 50%;
+  bottom: -1px;
+
+  width: 0;
+  height: 0;
+
+  border-left: 9px solid transparent;
+  border-right: 9px solid transparent;
+  border-top: 14px solid #c53c34;
+
+  transform: translate(-50%, 50%);
+}
