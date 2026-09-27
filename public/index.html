@@ -1,1 +1,267 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Sahyadri ground floor wayfinder</title><link rel="stylesheet" href="/style.css"></head><body><header><div class="brand"><b>S</b><span><strong>SAHYADRI</strong><small>GROUND FLOOR WAYFINDER</small></span></div><button id="adminToggle" class="link">Editor sign in</button></header><main><section class="panel"><div class="eyebrow">CAMPUS NAVIGATION</div><h1>Find your way.</h1><div class="entrance-status"><small>You are here</small><strong id="originName">Main entrance</strong></div><label for="search">Search for a place</label><input id="search" type="search" placeholder="Room, lab or section" autocomplete="off"><div id="results" class="results"></div><div id="directions" class="directions" aria-live="polite">Choose a destination to see directions.</div></section><section class="map-panel"><div class="map-head"><strong>Ground floor map</strong><span id="mapCaption">Select a destination</span></div><div class="map-scroller"><div class="map" id="map"><img src="/floor-plan.jpeg" alt="Ground floor plan with labelled rooms and courtyards"><svg id="route" viewBox="0 0 1198 1313" aria-hidden="true"></svg><div id="markers"></div></div></div><p class="tip">The route is an approximate corridor guide. Follow on-site signs and accessible routes.</p></section></main><div class="modal" id="loginModal" hidden><form id="loginForm" class="dialog"><button id="closeModal" type="button" class="close" aria-label="Close">×</button><h2>Editor sign in</h2><label for="password">Password</label><input id="password" type="password" required><button class="primary">Sign in</button><p id="loginError" class="error"></p></form></div><section id="editor" class="editor" hidden><div class="editor-head"><div><span class="eyebrow">PRIVATE EDITOR</span><h2>Map locations</h2></div><button id="logout" class="link">Sign out</button></div><p>Choose a location, then click its spot on the plan to move its pin. Assign its nearest corridor junction for directions. Save to publish edits.</p><div class="editor-grid"><div><label for="editType">Edit category</label><select id="editType"><option value="rooms">Rooms</option><option value="scans">Entrance QR point</option></select><label for="editItem">Location</label><select id="editItem"></select><label for="editName">Name</label><input id="editName"><label for="editNode">Nearest corridor junction</label><select id="editNode"></select><div class="actions"><button id="addItem" type="button">Add location</button><button id="deleteItem" type="button">Delete selected</button></div><button id="save" class="primary">Save changes</button><p id="saveStatus" role="status"></p></div><div class="qr-box"><h3>Entrance QR code</h3><p>After publishing the website, download this code and paste it at the main entrance.</p><div id="qrList"></div></div></div></section><script type="module" src="/app.js"></script></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1"
+  >
+
+  <meta name="theme-color" content="#073b2c">
+
+  <title>Sahyadri Ground Floor Wayfinder</title>
+
+  <link rel="stylesheet" href="/style.css">
+</head>
+
+<body>
+  <!-- Header -->
+  <header class="site-header">
+    <div class="brand">
+      <b class="brand-logo" aria-hidden="true">S</b>
+
+      <div class="brand-text">
+        <strong>SAHYADRI</strong>
+        <small>GROUND FLOOR WAYFINDER</small>
+      </div>
+    </div>
+
+    <button
+      id="adminToggle"
+      class="link-button"
+      type="button"
+    >
+      Editor sign in
+    </button>
+  </header>
+
+  <main>
+    <!-- Search and directions -->
+    <section class="panel">
+      <p class="eyebrow">CAMPUS NAVIGATION</p>
+
+      <h1>Find your way.</h1>
+
+      <div class="entrance-status">
+        <small>You are here</small>
+        <strong id="originName">Main entrance</strong>
+      </div>
+
+      <label for="search">Search for a place</label>
+
+      <input
+        id="search"
+        type="search"
+        placeholder="Room, lab or section"
+        autocomplete="off"
+      >
+
+      <div
+        id="results"
+        class="results"
+        aria-label="Matching destinations"
+      ></div>
+
+      <section
+        id="directions"
+        class="directions"
+        aria-live="polite"
+      >
+        Choose a destination to see directions.
+      </section>
+    </section>
+
+    <!-- Map -->
+    <section class="map-panel">
+      <div class="map-heading">
+        <strong>Ground floor map</strong>
+        <span id="mapCaption">Select a destination</span>
+      </div>
+
+      <div
+        class="map-tools"
+        role="group"
+        aria-label="Map zoom controls"
+      >
+        <button
+          id="zoomOut"
+          type="button"
+          aria-label="Zoom out"
+        >
+          −
+        </button>
+
+        <output id="zoomLevel" aria-live="polite">
+          100%
+        </output>
+
+        <button
+          id="zoomIn"
+          type="button"
+          aria-label="Zoom in"
+        >
+          +
+        </button>
+
+        <button id="zoomFit" type="button">
+          Fit map
+        </button>
+      </div>
+
+      <div
+        id="mapScroller"
+        class="map-scroller"
+        tabindex="0"
+        aria-label="Floor map. Zoom in, then scroll to explore."
+      >
+        <div id="map" class="map">
+          <img
+            src="/floor-plan.jpeg"
+            alt="Ground floor plan with labelled rooms and courtyards"
+            draggable="false"
+          >
+
+          <svg
+            id="route"
+            viewBox="0 0 1198 1313"
+            aria-hidden="true"
+          ></svg>
+
+          <div id="markers"></div>
+        </div>
+      </div>
+
+      <p class="map-tip">
+        Use + to enlarge the map, then swipe to explore.
+        Routes are approximate; follow on-site signs.
+      </p>
+    </section>
+  </main>
+
+  <!-- Admin login -->
+  <div id="loginModal" class="modal" hidden>
+    <form
+      id="loginForm"
+      class="dialog"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="loginTitle"
+    >
+      <button
+        id="closeModal"
+        class="close-button"
+        type="button"
+        aria-label="Close sign-in"
+      >
+        ×
+      </button>
+
+      <h2 id="loginTitle">Editor sign in</h2>
+
+      <label for="password">Password</label>
+
+      <input
+        id="password"
+        type="password"
+        autocomplete="current-password"
+        required
+      >
+
+      <button class="primary-button" type="submit">
+        Sign in
+      </button>
+
+      <p
+        id="loginError"
+        class="error"
+        role="alert"
+      ></p>
+    </form>
+  </div>
+
+  <!-- Private editor -->
+  <section id="editor" class="editor" hidden>
+    <div class="editor-heading">
+      <div>
+        <p class="eyebrow">PRIVATE EDITOR</p>
+        <h2>Map locations</h2>
+      </div>
+
+      <button
+        id="logout"
+        class="link-button"
+        type="button"
+      >
+        Sign out
+      </button>
+    </div>
+
+    <p>
+      Choose a location, then tap its position on the map to move
+      its pin. Select its nearest corridor junction and save.
+    </p>
+
+    <div class="editor-grid">
+      <div class="editor-fields">
+        <label for="editType">Edit category</label>
+
+        <select id="editType">
+          <option value="rooms">Rooms</option>
+          <option value="scans">Entrance QR point</option>
+        </select>
+
+        <label for="editItem">Location</label>
+        <select id="editItem"></select>
+
+        <label for="editName">Name</label>
+
+        <input
+          id="editName"
+          type="text"
+          maxlength="100"
+        >
+
+        <label for="editNode">
+          Nearest corridor junction
+        </label>
+
+        <select id="editNode"></select>
+
+        <div class="editor-actions">
+          <button id="addItem" type="button">
+            Add room
+          </button>
+
+          <button id="deleteItem" type="button">
+            Delete selected
+          </button>
+        </div>
+
+        <button
+          id="save"
+          class="primary-button"
+          type="button"
+        >
+          Save changes
+        </button>
+
+        <p id="saveStatus" role="status"></p>
+      </div>
+
+      <div class="qr-box">
+        <h3>Entrance QR code</h3>
+
+        <p>
+          Download this code from the live website and place it
+          at the main entrance.
+        </p>
+
+        <div id="qrList" class="qr-list"></div>
+      </div>
+    </div>
+  </section>
+
+  <script type="module" src="/app.js"></script>
+</body>
+</html>
