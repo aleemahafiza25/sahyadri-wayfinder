@@ -70,7 +70,7 @@ const upperEdges = connect(
 export const floors = {
   0: {
     name: "Ground floor",
-    image: "/floor-plan.jpeg",
+    image: "/ground-floor.jpeg",
     ratio: "1198 / 1313",
 
     nodes: {
@@ -152,7 +152,7 @@ export const floors = {
 
   1: {
     name: "First floor",
-    image: "/first-floor.jpeg",
+    image: "/first-floor.png",
     ratio: "1200 / 1599",
 
     nodes: convert({
@@ -182,7 +182,7 @@ export const floors = {
 
   2: {
     name: "Second floor",
-    image: "/second-floor.jpeg",
+    image: "/second-floor.png",
     ratio: "1200 / 1599",
 
     nodes: convert({
@@ -212,7 +212,7 @@ export const floors = {
 
   3: {
     name: "Third floor",
-    image: "/third-floor.jpeg",
+    image: "/third-floor.png",
     ratio: "1200 / 1599",
 
     nodes: convert({
