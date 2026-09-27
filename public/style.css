@@ -774,3 +774,137 @@ h1 {
 #markers {
   pointer-events: none;
 }
+
+/* ---------- Real 3D Map View ---------- */
+
+.map-scroller {
+  overflow: auto;
+  padding: 50px 35px 70px;
+  background:
+    linear-gradient(135deg, #eef3ef 0%, #dce5de 100%);
+  perspective: 1800px;
+}
+
+/* The complete map moves as one object.
+   This keeps the route and pins aligned with the image. */
+.map {
+  transform:
+    perspective(1800px)
+    rotateX(7deg)
+    rotateY(-5deg)
+    scale(0.96);
+
+  transform-origin: center center;
+  transform-style: preserve-3d;
+
+  background: #fff;
+  border: 2px solid #b8c8bc;
+  border-radius: 14px;
+
+  box-shadow:
+    18px 24px 0 rgba(39, 66, 52, 0.15),
+    30px 38px 45px rgba(20, 48, 35, 0.28),
+    0 10px 20px rgba(20, 48, 35, 0.18);
+}
+
+/* Floor slab underneath the map */
+.map::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+
+  background: #cfd8d1;
+  border-radius: 14px;
+
+  transform: translateZ(-22px) translate(12px, 20px);
+  box-shadow:
+    0 14px 22px rgba(20, 48, 35, 0.18);
+
+  z-index: -2;
+}
+
+/* Soft shadow below the complete building */
+.map::after {
+  content: "";
+  position: absolute;
+
+  left: 4%;
+  right: -4%;
+  bottom: -34px;
+
+  height: 40px;
+
+  background: rgba(17, 45, 32, 0.22);
+  filter: blur(18px);
+  border-radius: 50%;
+
+  transform: translateZ(-30px);
+  z-index: -3;
+}
+
+/* Image remains attached to the 3D map */
+.map > img {
+  display: block;
+  border-radius: 12px;
+
+  filter:
+    saturate(1.05)
+    contrast(1.04)
+    brightness(1.02);
+}
+
+/* Route stays above the map */
+.map > svg {
+  transform: translateZ(10px);
+  filter:
+    drop-shadow(0 3px 3px rgba(0, 0, 0, 0.35));
+}
+
+/* Pins appear slightly raised */
+#markers {
+  transform: translateZ(18px);
+}
+
+.pin {
+  box-shadow:
+    0 4px 5px rgba(0, 0, 0, 0.30),
+    0 9px 16px rgba(0, 0, 0, 0.20);
+}
+
+/* Floor buttons */
+.floor-tabs button,
+.route-floors button,
+.map-tools button {
+  box-shadow:
+    0 3px 0 #c0cbc3,
+    0 6px 10px rgba(20, 48, 35, 0.10);
+}
+
+/* Tablet / mobile */
+@media (max-width: 850px) {
+  .map-scroller {
+    padding: 35px 18px 55px;
+  }
+
+  .map {
+    transform:
+      perspective(1400px)
+      rotateX(5deg)
+      rotateY(-3deg)
+      scale(0.98);
+  }
+}
+
+@media (max-width: 480px) {
+  .map-scroller {
+    padding: 25px 10px 45px;
+  }
+
+  .map {
+    transform:
+      perspective(1100px)
+      rotateX(4deg)
+      rotateY(-2deg)
+      scale(0.99);
+  }
+}
